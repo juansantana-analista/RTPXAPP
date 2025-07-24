@@ -2,7 +2,9 @@ import React, { useState, useEffect } from 'react';
 import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { StatusBar } from 'expo-status-bar';
+import { StatusBar, View, Platform } from 'react-native';
+
+// Importações das telas
 import LoginScreen from './screens/LoginScreen';
 import LoadingScreen from './screens/LoadingScreen';
 import BottomTabNavigator from './navigation/BottomTabNavigator';
@@ -48,28 +50,43 @@ export default function App() {
   };
 
   if (isLoading) {
-    return <LoadingScreen />;
+    return (
+      <View style={{ flex: 1 }}>
+        <StatusBar 
+          barStyle="light-content" 
+          backgroundColor="#0a1f21"
+          translucent={false}
+        />
+        <LoadingScreen />
+      </View>
+    );
   }
 
   return (
-    <NavigationContainer>
-      <StatusBar style="light" backgroundColor="#133134" />
-      <Stack.Navigator 
-        screenOptions={{ 
-          headerShown: false,
-          cardStyle: { backgroundColor: '#0a1f21' }
-        }}
-      >
-        {userToken == null ? (
-          <Stack.Screen name="Login">
-            {props => <LoginScreen {...props} onLogin={login} />}
-          </Stack.Screen>
-        ) : (
-          <Stack.Screen name="Main">
-            {props => <BottomTabNavigator {...props} onLogout={logout} />}
-          </Stack.Screen>
-        )}
-      </Stack.Navigator>
-    </NavigationContainer>
+    <View style={{ flex: 1, paddingTop: Platform.OS === 'android' ? StatusBar.currentHeight : 0 }}>
+      <StatusBar 
+        barStyle="light-content" 
+        backgroundColor="#0a1f21"
+        translucent={false}
+      />
+      <NavigationContainer>
+        <Stack.Navigator 
+          screenOptions={{ 
+            headerShown: false,
+            cardStyle: { backgroundColor: '#0a1f21' }
+          }}
+        >
+          {userToken == null ? (
+            <Stack.Screen name="Login">
+              {props => <LoginScreen {...props} onLogin={login} />}
+            </Stack.Screen>
+          ) : (
+            <Stack.Screen name="Main">
+              {props => <BottomTabNavigator {...props} onLogout={logout} />}
+            </Stack.Screen>
+          )}
+        </Stack.Navigator>
+      </NavigationContainer>
+    </View>
   );
 }

@@ -12,7 +12,7 @@ import {
 import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
 
-const TransactionsScreen = ({ navigation }) => {
+const TransactionScreen = ({ navigation }) => {
   const [selectedFilter, setSelectedFilter] = useState('Todas');
   const [searchQuery, setSearchQuery] = useState('');
 
@@ -455,6 +455,9 @@ const styles = StyleSheet.create({
     borderColor: 'rgba(255, 255, 255, 0.1)',
   },
   transactionContent: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
     padding: 16,
   },
   transactionLeft: {
@@ -528,6 +531,6 @@ const styles = StyleSheet.create({
     color: '#9CA3AF',
     textAlign: 'center',
   },
-  
 });
-export default TransactionsScreen;
+
+export default TransactionScreen;

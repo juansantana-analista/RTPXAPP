@@ -6,12 +6,42 @@ import {
   TouchableOpacity,
   StyleSheet,
   SafeAreaView,
-  Dimensions
+  Dimensions,
+  StatusBar
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
 
 const { width } = Dimensions.get('window');
+
+const colors = {
+  // Tema Escuro
+  primary: '#4ECDC4',
+  primaryLight: '#6EDCD4',
+  primaryDark: '#44A08D',
+  success: '#4ECDC4',
+  warning: '#FFE66D',
+  error: '#FF6B6B',
+  info: '#A8E6CF',
+  
+  // Backgrounds escuros
+  background: '#0a1f21',
+  backgroundSecondary: '#133134',
+  backgroundTertiary: '#1a4247',
+  
+  // Cards e superfícies
+  surface: 'rgba(255, 255, 255, 0.05)',
+  surfaceHigh: 'rgba(255, 255, 255, 0.1)',
+  
+  // Textos
+  textPrimary: '#FFFFFF',
+  textSecondary: '#9CA3AF',
+  textTertiary: '#6B7280',
+  
+  // Bordas
+  border: 'rgba(255, 255, 255, 0.1)',
+  borderHigh: 'rgba(255, 255, 255, 0.2)',
+};
 
 const PortfolioScreen = ({ navigation }) => {
   const [selectedPeriod, setSelectedPeriod] = useState('1M');
@@ -23,47 +53,51 @@ const PortfolioScreen = ({ navigation }) => {
       name: 'Ações', 
       value: 125430.00, 
       percentage: 12.5, 
-      color: '#4ECDC4',
+      color: colors.success,
       allocation: 45.5,
+      icon: 'trending-up',
       assets: [
-        { symbol: 'PETR4', name: 'Petrobras PN', value: 'R$ 45.320,00', change: '+8.2%' },
-        { symbol: 'VALE3', name: 'Vale ON', value: 'R$ 38.150,00', change: '+12.4%' },
-        { symbol: 'ITUB4', name: 'Itaú Unibanco PN', value: 'R$ 28.960,00', change: '-2.1%' },
-        { symbol: 'BBDC4', name: 'Bradesco PN', value: 'R$ 13.000,00', change: '+5.7%' }
+        { symbol: 'PETR4', name: 'Petrobras PN', value: 45320.00, change: '+8.2%', isPositive: true },
+        { symbol: 'VALE3', name: 'Vale ON', value: 38150.00, change: '+12.4%', isPositive: true },
+        { symbol: 'ITUB4', name: 'Itaú Unibanco PN', value: 28960.00, change: '-2.1%', isPositive: false },
+        { symbol: 'BBDC4', name: 'Bradesco PN', value: 13000.00, change: '+5.7%', isPositive: true }
       ]
     },
     { 
       name: 'Renda Fixa', 
       value: 89200.00, 
       percentage: 5.2, 
-      color: '#FFE66D',
+      color: colors.warning,
       allocation: 32.4,
+      icon: 'shield-checkmark',
       assets: [
-        { symbol: 'CDB', name: 'CDB Banco Inter', value: 'R$ 45.000,00', change: '+0.8%' },
-        { symbol: 'LCI', name: 'LCI Bradesco', value: 'R$ 25.000,00', change: '+0.6%' },
-        { symbol: 'TESOURO', name: 'Tesouro Selic', value: 'R$ 19.200,00', change: '+0.7%' }
+        { symbol: 'CDB', name: 'CDB Banco Inter', value: 45000.00, change: '+0.8%', isPositive: true },
+        { symbol: 'LCI', name: 'LCI Bradesco', value: 25000.00, change: '+0.6%', isPositive: true },
+        { symbol: 'TESOURO', name: 'Tesouro Selic', value: 19200.00, change: '+0.7%', isPositive: true }
       ]
     },
     { 
       name: 'Fundos', 
       value: 45600.00, 
       percentage: 8.9, 
-      color: '#FF6B6B',
+      color: colors.info,
       allocation: 16.5,
+      icon: 'pie-chart',
       assets: [
-        { symbol: 'HASH11', name: 'Hashdex Nasdaq', value: 'R$ 25.600,00', change: '+15.2%' },
-        { symbol: 'BOVA11', name: 'iShares Bovespa', value: 'R$ 20.000,00', change: '+7.8%' }
+        { symbol: 'HASH11', name: 'Hashdex Nasdaq', value: 25600.00, change: '+15.2%', isPositive: true },
+        { symbol: 'BOVA11', name: 'iShares Bovespa', value: 20000.00, change: '+7.8%', isPositive: true }
       ]
     },
     { 
       name: 'Cripto', 
       value: 15320.00, 
       percentage: -2.1, 
-      color: '#A8E6CF',
+      color: colors.primary,
       allocation: 5.6,
+      icon: 'logo-bitcoin',
       assets: [
-        { symbol: 'BTC', name: 'Bitcoin', value: 'R$ 12.320,00', change: '-3.2%' },
-        { symbol: 'ETH', name: 'Ethereum', value: 'R$ 3.000,00', change: '+1.5%' }
+        { symbol: 'BTC', name: 'Bitcoin', value: 12320.00, change: '-3.2%', isPositive: false },
+        { symbol: 'ETH', name: 'Ethereum', value: 3000.00, change: '+1.5%', isPositive: true }
       ]
     }
   ];
@@ -77,39 +111,23 @@ const PortfolioScreen = ({ navigation }) => {
     }).format(value);
   };
 
-  const renderPieChart = () => {
-    const center = 60;
-    const radius = 50;
-    let cumulativePercentage = 0;
-
+  const renderChart = () => {
     return (
-      <View style={styles.pieChartContainer}>
-        <View style={styles.pieChart}>
-          {portfolioData.map((item, index) => {
-            const percentage = item.allocation;
-            const angle = (percentage / 100) * 360;
-            const startAngle = (cumulativePercentage / 100) * 360;
-            cumulativePercentage += percentage;
-
-            return (
-              <View
-                key={index}
-                style={[
-                  styles.pieSlice,
-                  {
-                    backgroundColor: item.color,
-                    transform: [
-                      { rotate: `${startAngle}deg` },
-                    ],
-                  },
-                ]}
-              />
-            );
-          })}
-          <View style={styles.pieChartCenter}>
-            <Text style={styles.pieChartText}>Total</Text>
-            <Text style={styles.pieChartValue}>{formatCurrency(totalValue)}</Text>
-          </View>
+      <View style={styles.chartContainer}>
+        <View style={styles.chartPlaceholder}>
+          <Ionicons name="pie-chart" size={80} color={colors.primary} />
+          <Text style={styles.chartText}>Gráfico de Alocação</Text>
+        </View>
+        
+        {/* Legend */}
+        <View style={styles.chartLegend}>
+          {portfolioData.map((item, index) => (
+            <View key={index} style={styles.legendItem}>
+              <View style={[styles.legendColor, { backgroundColor: item.color }]} />
+              <Text style={styles.legendText}>{item.name}</Text>
+              <Text style={styles.legendValue}>{item.allocation}%</Text>
+            </View>
+          ))}
         </View>
       </View>
     );
@@ -117,9 +135,15 @@ const PortfolioScreen = ({ navigation }) => {
 
   return (
     <LinearGradient
-      colors={['#0a1f21', '#133134', '#1a4247']}
+      colors={[colors.background, colors.backgroundSecondary, colors.backgroundTertiary]}
       style={styles.container}
     >
+      <StatusBar 
+        barStyle="light-content" 
+        backgroundColor={colors.background}
+        translucent={false}
+      />
+      
       <SafeAreaView style={styles.safeArea}>
         {/* Header */}
         <View style={styles.header}>
@@ -127,128 +151,156 @@ const PortfolioScreen = ({ navigation }) => {
             onPress={() => navigation.goBack()}
             style={styles.backButton}
           >
-            <Ionicons name="arrow-back" size={24} color="#FFFFFF" />
+            <Ionicons name="arrow-back" size={24} color={colors.textPrimary} />
           </TouchableOpacity>
           <Text style={styles.headerTitle}>Meu Portfólio</Text>
           <TouchableOpacity style={styles.menuButton}>
-            <Ionicons name="ellipsis-vertical" size={24} color="#FFFFFF" />
+            <Ionicons name="ellipsis-vertical" size={24} color={colors.textSecondary} />
           </TouchableOpacity>
         </View>
 
         <ScrollView 
           style={styles.content}
           showsVerticalScrollIndicator={false}
+          contentContainerStyle={styles.scrollContent}
         >
           {/* Performance Card */}
-          <View style={styles.performanceCard}>
-            <LinearGradient
-              colors={['rgba(78, 205, 196, 0.1)', 'rgba(68, 160, 141, 0.05)']}
-              style={styles.performanceGradient}
-            >
-              <Text style={styles.performanceLabel}>Valor Total do Portfólio</Text>
-              <Text style={styles.performanceValue}>{formatCurrency(totalValue)}</Text>
-              <View style={styles.performanceChange}>
-                <Ionicons name="trending-up" size={16} color="#4ECDC4" />
-                <Text style={styles.performanceChangeText}>+R$ 24.850 (+9,9%) este mês</Text>
-              </View>
-            </LinearGradient>
+          <View style={styles.section}>
+            <View style={styles.performanceCard}>
+              <LinearGradient
+                colors={['rgba(78, 205, 196, 0.1)', 'rgba(68, 160, 141, 0.05)']}
+                style={styles.performanceGradient}
+              >
+                <Text style={styles.performanceLabel}>Valor Total do Portfólio</Text>
+                <Text style={styles.performanceValue}>{formatCurrency(totalValue)}</Text>
+                <View style={styles.performanceChange}>
+                  <View style={styles.performanceChangeIcon}>
+                    <Ionicons name="trending-up" size={16} color={colors.success} />
+                  </View>
+                  <Text style={styles.performanceChangeText}>+R$ 24.850 (+9,9%) este mês</Text>
+                </View>
+              </LinearGradient>
+            </View>
           </View>
 
           {/* Period Selector */}
-          <View style={styles.periodSelector}>
-            {periods.map((period) => (
-              <TouchableOpacity
-                key={period}
-                style={[
-                  styles.periodButton,
-                  selectedPeriod === period && styles.periodButtonActive
-                ]}
-                onPress={() => setSelectedPeriod(period)}
-              >
-                <Text style={[
-                  styles.periodButtonText,
-                  selectedPeriod === period && styles.periodButtonTextActive
-                ]}>
-                  {period}
-                </Text>
-              </TouchableOpacity>
-            ))}
+          <View style={styles.section}>
+            <View style={styles.periodSelector}>
+              {periods.map((period) => (
+                <TouchableOpacity
+                  key={period}
+                  style={[
+                    styles.periodButton,
+                    selectedPeriod === period && styles.periodButtonActive
+                  ]}
+                  onPress={() => setSelectedPeriod(period)}
+                >
+                  <Text style={[
+                    styles.periodButtonText,
+                    selectedPeriod === period && styles.periodButtonTextActive
+                  ]}>
+                    {period}
+                  </Text>
+                </TouchableOpacity>
+              ))}
+            </View>
           </View>
 
           {/* Chart Section */}
-          <View style={styles.chartSection}>
+          <View style={styles.section}>
             <Text style={styles.sectionTitle}>Alocação por Categoria</Text>
-            {renderPieChart()}
+            {renderChart()}
           </View>
 
           {/* Assets by Category */}
-          <View style={styles.assetsSection}>
+          <View style={styles.section}>
             <Text style={styles.sectionTitle}>Detalhes por Categoria</Text>
-            {portfolioData.map((category, categoryIndex) => (
-              <View key={categoryIndex} style={styles.categoryCard}>
-                <TouchableOpacity style={styles.categoryHeader}>
-                  <View style={styles.categoryLeft}>
-                    <View style={[styles.categoryIcon, { backgroundColor: `${category.color}20` }]}>
-                      <View style={[styles.categoryDot, { backgroundColor: category.color }]} />
-                    </View>
-                    <View>
-                      <Text style={styles.categoryName}>{category.name}</Text>
-                      <Text style={styles.categoryValue}>{formatCurrency(category.value)}</Text>
-                    </View>
-                  </View>
-                  <View style={styles.categoryRight}>
-                    <Text style={styles.categoryAllocation}>{category.allocation}%</Text>
-                    <Text style={[
-                      styles.categoryPercentage,
-                      { color: category.percentage >= 0 ? '#4ECDC4' : '#FF6B6B' }
-                    ]}>
-                      {category.percentage >= 0 ? '+' : ''}{category.percentage}%
-                    </Text>
-                  </View>
-                </TouchableOpacity>
-
-                {/* Assets List */}
-                <View style={styles.assetsList}>
-                  {category.assets.map((asset, assetIndex) => (
-                    <TouchableOpacity key={assetIndex} style={styles.assetItem}>
-                      <View style={styles.assetLeft}>
-                        <Text style={styles.assetSymbol}>{asset.symbol}</Text>
-                        <Text style={styles.assetName}>{asset.name}</Text>
+            <View style={styles.categoriesContainer}>
+              {portfolioData.map((category, categoryIndex) => (
+                <View key={categoryIndex} style={styles.categoryCard}>
+                  <TouchableOpacity style={styles.categoryHeader}>
+                    <View style={styles.categoryLeft}>
+                      <View style={[styles.categoryIcon, { backgroundColor: `${category.color}20` }]}>
+                        <Ionicons name={category.icon} size={24} color={category.color} />
                       </View>
-                      <View style={styles.assetRight}>
-                        <Text style={styles.assetValue}>{asset.value}</Text>
+                      <View style={styles.categoryInfo}>
+                        <Text style={styles.categoryName}>{category.name}</Text>
+                        <Text style={styles.categoryValue}>{formatCurrency(category.value)}</Text>
+                      </View>
+                    </View>
+                    <View style={styles.categoryRight}>
+                      <Text style={styles.categoryAllocation}>{category.allocation}%</Text>
+                      <View style={styles.categoryChangeContainer}>
+                        <Ionicons 
+                          name={category.percentage >= 0 ? "trending-up" : "trending-down"} 
+                          size={12} 
+                          color={category.percentage >= 0 ? colors.success : colors.error} 
+                        />
                         <Text style={[
-                          styles.assetChange,
-                          { color: asset.change.includes('-') ? '#FF6B6B' : '#4ECDC4' }
+                          styles.categoryPercentage,
+                          { color: category.percentage >= 0 ? colors.success : colors.error }
                         ]}>
-                          {asset.change}
+                          {category.percentage >= 0 ? '+' : ''}{category.percentage}%
                         </Text>
                       </View>
-                    </TouchableOpacity>
-                  ))}
+                    </View>
+                  </TouchableOpacity>
+
+                  {/* Assets List */}
+                  <View style={styles.assetsList}>
+                    {category.assets.map((asset, assetIndex) => (
+                      <TouchableOpacity key={assetIndex} style={styles.assetItem}>
+                        <View style={styles.assetLeft}>
+                          <View style={styles.assetIcon}>
+                            <Text style={styles.assetSymbol}>{asset.symbol}</Text>
+                          </View>
+                          <View style={styles.assetInfo}>
+                            <Text style={styles.assetName}>{asset.name}</Text>
+                            <Text style={styles.assetSymbolText}>{asset.symbol}</Text>
+                          </View>
+                        </View>
+                        <View style={styles.assetRight}>
+                          <Text style={styles.assetValue}>{formatCurrency(asset.value)}</Text>
+                          <View style={styles.assetChangeContainer}>
+                            <Ionicons 
+                              name={asset.isPositive ? "trending-up" : "trending-down"} 
+                              size={12} 
+                              color={asset.isPositive ? colors.success : colors.error} 
+                            />
+                            <Text style={[
+                              styles.assetChange,
+                              { color: asset.isPositive ? colors.success : colors.error }
+                            ]}>
+                              {asset.change}
+                            </Text>
+                          </View>
+                        </View>
+                      </TouchableOpacity>
+                    ))}
+                  </View>
                 </View>
-              </View>
-            ))}
+              ))}
+            </View>
           </View>
 
           {/* Action Buttons */}
-          <View style={styles.actionButtons}>
-            <TouchableOpacity style={styles.actionButton}>
-              <LinearGradient
-                colors={['#4ECDC4', '#44A08D']}
-                style={styles.actionButtonGradient}
-              >
-                <Ionicons name="add" size={20} color="#FFFFFF" />
-                <Text style={styles.actionButtonText}>Investir</Text>
-              </LinearGradient>
-            </TouchableOpacity>
+          <View style={styles.section}>
+            <View style={styles.actionButtons}>
+              <TouchableOpacity style={styles.actionButtonPrimary}>
+                <LinearGradient
+                  colors={[colors.success, colors.primaryDark]}
+                  style={styles.actionButtonGradient}
+                >
+                  <Ionicons name="add" size={20} color={colors.textPrimary} />
+                  <Text style={styles.actionButtonPrimaryText}>Investir</Text>
+                </LinearGradient>
+              </TouchableOpacity>
 
-            <TouchableOpacity style={[styles.actionButton, styles.actionButtonSecondary]}>
-              <View style={styles.actionButtonSecondaryContent}>
-                <Ionicons name="swap-horizontal" size={20} color="#4ECDC4" />
+              <TouchableOpacity style={styles.actionButtonSecondary}>
+                <Ionicons name="swap-horizontal" size={20} color={colors.primary} />
                 <Text style={styles.actionButtonSecondaryText}>Rebalancear</Text>
-              </View>
-            </TouchableOpacity>
+              </TouchableOpacity>
+            </View>
           </View>
         </ScrollView>
       </SafeAreaView>
@@ -267,64 +319,77 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    paddingHorizontal: 24,
+    paddingHorizontal: 20,
     paddingVertical: 16,
     borderBottomWidth: 1,
-    borderBottomColor: 'rgba(255, 255, 255, 0.1)',
+    borderBottomColor: colors.border,
   },
   backButton: {
     padding: 8,
   },
   headerTitle: {
     fontSize: 20,
-    fontWeight: 'bold',
-    color: '#FFFFFF',
+    fontWeight: '700',
+    color: colors.textPrimary,
   },
   menuButton: {
     padding: 8,
   },
   content: {
     flex: 1,
-    paddingHorizontal: 24,
+  },
+  scrollContent: {
+    paddingTop: 24, // Espaço do primeiro card em relação ao header
+    paddingBottom: 140, // Espaço para a barra de navegação e botões
+  },
+  section: {
+    paddingHorizontal: 20,
+    marginBottom: 24,
   },
   performanceCard: {
-    marginVertical: 20,
     borderRadius: 16,
     overflow: 'hidden',
   },
   performanceGradient: {
     padding: 24,
     borderWidth: 1,
-    borderColor: 'rgba(78, 205, 196, 0.2)',
+    borderColor: colors.borderHigh,
     borderRadius: 16,
   },
   performanceLabel: {
     fontSize: 16,
-    color: '#9CA3AF',
+    color: colors.textSecondary,
     marginBottom: 8,
+    fontWeight: '500',
   },
   performanceValue: {
-    fontSize: 28,
-    fontWeight: 'bold',
-    color: '#FFFFFF',
+    fontSize: 32,
+    fontWeight: '800',
+    color: colors.textPrimary,
     marginBottom: 12,
   },
   performanceChange: {
     flexDirection: 'row',
     alignItems: 'center',
   },
+  performanceChangeIcon: {
+    backgroundColor: 'rgba(78, 205, 196, 0.2)',
+    borderRadius: 12,
+    padding: 4,
+    marginRight: 8,
+  },
   performanceChangeText: {
     fontSize: 14,
-    color: '#4ECDC4',
-    marginLeft: 4,
+    color: colors.success,
+    fontWeight: '600',
   },
   periodSelector: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
-    marginBottom: 24,
-    backgroundColor: 'rgba(255, 255, 255, 0.05)',
+    backgroundColor: colors.surface,
     borderRadius: 12,
     padding: 4,
+    borderWidth: 1,
+    borderColor: colors.border,
   },
   periodButton: {
     flex: 1,
@@ -333,64 +398,74 @@ const styles = StyleSheet.create({
     borderRadius: 8,
   },
   periodButtonActive: {
-    backgroundColor: '#4ECDC4',
+    backgroundColor: colors.primary,
   },
   periodButtonText: {
     fontSize: 14,
-    color: '#9CA3AF',
-    fontWeight: '500',
+    color: colors.textSecondary,
+    fontWeight: '600',
   },
   periodButtonTextActive: {
-    color: '#FFFFFF',
-  },
-  chartSection: {
-    marginBottom: 32,
+    color: colors.textPrimary,
   },
   sectionTitle: {
     fontSize: 20,
-    fontWeight: 'bold',
-    color: '#FFFFFF',
-    marginBottom: 20,
+    fontWeight: '700',
+    color: colors.textPrimary,
+    marginBottom: 16,
   },
-  pieChartContainer: {
+  chartContainer: {
     alignItems: 'center',
+    backgroundColor: colors.surface,
+    borderRadius: 16,
+    padding: 24,
+    borderWidth: 1,
+    borderColor: colors.border,
   },
-  pieChart: {
-    width: 120,
-    height: 120,
-    borderRadius: 60,
-    position: 'relative',
-    backgroundColor: '#1a4247',
-  },
-  pieChartCenter: {
-    position: 'absolute',
-    top: 30,
-    left: 30,
-    width: 60,
-    height: 60,
-    borderRadius: 30,
-    backgroundColor: '#133134',
-    justifyContent: 'center',
+  chartPlaceholder: {
     alignItems: 'center',
+    marginBottom: 24,
   },
-  pieChartText: {
-    fontSize: 10,
-    color: '#9CA3AF',
+  chartText: {
+    fontSize: 16,
+    color: colors.textSecondary,
+    marginTop: 12,
+    fontWeight: '500',
   },
-  pieChartValue: {
-    fontSize: 8,
-    color: '#FFFFFF',
-    fontWeight: 'bold',
+  chartLegend: {
+    width: '100%',
+    gap: 8,
   },
-  assetsSection: {
-    marginBottom: 32,
+  legendItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+  },
+  legendColor: {
+    width: 12,
+    height: 12,
+    borderRadius: 6,
+    marginRight: 8,
+  },
+  legendText: {
+    flex: 1,
+    fontSize: 14,
+    color: colors.textSecondary,
+    fontWeight: '500',
+  },
+  legendValue: {
+    fontSize: 14,
+    color: colors.textPrimary,
+    fontWeight: '600',
+  },
+  categoriesContainer: {
+    gap: 16,
   },
   categoryCard: {
-    backgroundColor: 'rgba(255, 255, 255, 0.05)',
+    backgroundColor: colors.surface,
     borderRadius: 12,
-    marginBottom: 16,
     borderWidth: 1,
-    borderColor: 'rgba(255, 255, 255, 0.1)',
+    borderColor: colors.border,
   },
   categoryHeader: {
     flexDirection: 'row',
@@ -401,46 +476,51 @@ const styles = StyleSheet.create({
   categoryLeft: {
     flexDirection: 'row',
     alignItems: 'center',
+    flex: 1,
   },
   categoryIcon: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
+    width: 48,
+    height: 48,
+    borderRadius: 24,
     justifyContent: 'center',
     alignItems: 'center',
     marginRight: 12,
   },
-  categoryDot: {
-    width: 8,
-    height: 8,
-    borderRadius: 4,
+  categoryInfo: {
+    flex: 1,
   },
   categoryName: {
     fontSize: 16,
-    color: '#FFFFFF',
-    fontWeight: '600',
+    color: colors.textPrimary,
+    fontWeight: '700',
+    marginBottom: 2,
   },
   categoryValue: {
     fontSize: 14,
-    color: '#9CA3AF',
-    marginTop: 2,
+    color: colors.textSecondary,
+    fontWeight: '500',
   },
   categoryRight: {
     alignItems: 'flex-end',
   },
   categoryAllocation: {
     fontSize: 16,
-    color: '#FFFFFF',
-    fontWeight: '600',
+    color: colors.textPrimary,
+    fontWeight: '700',
+    marginBottom: 4,
+  },
+  categoryChangeContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
   },
   categoryPercentage: {
     fontSize: 14,
-    fontWeight: '500',
-    marginTop: 2,
+    fontWeight: '600',
   },
   assetsList: {
     borderTopWidth: 1,
-    borderTopColor: 'rgba(255, 255, 255, 0.1)',
+    borderTopColor: colors.border,
   },
   assetItem: {
     flexDirection: 'row',
@@ -449,71 +529,99 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     paddingVertical: 12,
     borderBottomWidth: 1,
-    borderBottomColor: 'rgba(255, 255, 255, 0.05)',
+    borderBottomColor: colors.border,
   },
   assetLeft: {
+    flexDirection: 'row',
+    alignItems: 'center',
     flex: 1,
   },
+  assetIcon: {
+    width: 32,
+    height: 32,
+    borderRadius: 16,
+    backgroundColor: colors.surfaceHigh,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginRight: 12,
+  },
   assetSymbol: {
-    fontSize: 14,
-    color: '#FFFFFF',
-    fontWeight: '600',
+    fontSize: 10,
+    color: colors.textSecondary,
+    fontWeight: '700',
+  },
+  assetInfo: {
+    flex: 1,
   },
   assetName: {
+    fontSize: 14,
+    color: colors.textPrimary,
+    fontWeight: '600',
+    marginBottom: 2,
+  },
+  assetSymbolText: {
     fontSize: 12,
-    color: '#9CA3AF',
-    marginTop: 2,
+    color: colors.textSecondary,
   },
   assetRight: {
     alignItems: 'flex-end',
   },
   assetValue: {
     fontSize: 14,
-    color: '#FFFFFF',
-    fontWeight: '500',
+    color: colors.textPrimary,
+    fontWeight: '600',
+    marginBottom: 4,
+  },
+  assetChangeContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
   },
   assetChange: {
     fontSize: 12,
-    fontWeight: '500',
-    marginTop: 2,
+    fontWeight: '600',
   },
   actionButtons: {
     flexDirection: 'row',
     gap: 12,
-    marginBottom: 32,
+    marginBottom: 20, // Margem extra para evitar corte
   },
-  actionButton: {
+  actionButtonPrimary: {
     flex: 1,
     borderRadius: 12,
     overflow: 'hidden',
+    height: 56, // Altura fixa para igualar os botões
   },
   actionButtonGradient: {
+    paddingVertical: 16,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    paddingVertical: 16,
     gap: 8,
+    height: '100%', // Ocupa toda a altura do container
   },
-  actionButtonText: {
-    color: '#FFFFFF',
+  actionButtonPrimaryText: {
+    color: colors.textPrimary,
     fontSize: 16,
-    fontWeight: '600',
+    fontWeight: '700',
   },
   actionButtonSecondary: {
-    borderWidth: 1,
-    borderColor: '#4ECDC4',
-  },
-  actionButtonSecondaryContent: {
+    flex: 1,
+    backgroundColor: colors.surface,
+    borderRadius: 12,
+    paddingVertical: 16,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    paddingVertical: 16,
     gap: 8,
+    borderWidth: 2,
+    borderColor: colors.primary,
+    height: 56, // Altura fixa igual ao primary
   },
   actionButtonSecondaryText: {
-    color: '#4ECDC4',
+    color: colors.primary,
     fontSize: 16,
-    fontWeight: '600',
+    fontWeight: '700',
   },
 });
 

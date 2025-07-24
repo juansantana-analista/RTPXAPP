@@ -1,95 +1,84 @@
 import React from 'react';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
-import { LinearGradient } from 'expo-linear-gradient';
+import { View, StyleSheet, Platform } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import { View, StyleSheet } from 'react-native';
 
+// Importar as telas
 import DashboardScreen from '../screens/DashboardScreen';
-import PortfolioScreen from '../screens/PortfolioScreen';
 import InvestmentScreen from '../screens/InvestmentScreen';
-import TransactionsScreen from '../screens/TransactionsScreen';
+import PortfolioScreen from '../screens/PortfolioScreen';
+import TransactionsScreen from '../screens/TransactionScreen';
 import ProfileScreen from '../screens/ProfileScreen';
 
 const Tab = createBottomTabNavigator();
+
+const colors = {
+  // Cores exatas da imagem
+  tabBarBackground: '#1a4247', // Verde escuro da imagem
+  tabBarBorder: '#2a5257',     // Borda sutil
+  active: '#4ECDC4',           // Verde água para ativo
+  inactive: '#7A9B9E',         // Cinza esverdeado para inativo
+  glow: 'rgba(78, 205, 196, 0.12)', // Glow bem sutil
+};
 
 const BottomTabNavigator = ({ onLogout }) => {
   return (
     <Tab.Navigator
       screenOptions={({ route }) => ({
         headerShown: false,
-        tabBarIcon: ({ focused, color, size }) => {
+        tabBarShowLabel: false,
+        tabBarStyle: styles.tabBar,
+        tabBarItemStyle: styles.tabBarItem,
+        tabBarBackground: () => (
+          <View style={styles.tabBarBackground} />
+        ),
+        tabBarIcon: ({ focused }) => {
           let iconName;
 
           if (route.name === 'Dashboard') {
-            iconName = focused ? 'home' : 'home-outline';
+            iconName = 'home';
           } else if (route.name === 'Portfolio') {
-            iconName = focused ? 'pie-chart' : 'pie-chart-outline';
-          } else if (route.name === 'Investment') {
-            iconName = focused ? 'trending-up' : 'trending-up-outline';
-          } else if (route.name === 'Transactions') {
-            iconName = focused ? 'receipt' : 'receipt-outline';
-          } else if (route.name === 'Profile') {
-            iconName = focused ? 'person' : 'person-outline';
+            iconName = 'wallet';
+          } else if (route.name === 'Investir') {
+            iconName = 'trending-up';
+          } else if (route.name === 'Transacoes') {
+            iconName = 'document-text';
+          } else if (route.name === 'Perfil') {
+            iconName = 'person';
           }
 
           return (
-            <View style={[styles.iconContainer, focused && styles.iconContainerFocused]}>
-              {focused && (
-                <LinearGradient
-                  colors={['rgba(78, 205, 196, 0.2)', 'rgba(68, 160, 141, 0.1)']}
-                  style={styles.iconBackground}
-                />
-              )}
-              <Ionicons name={iconName} size={size} color={color} />
+            <View style={[
+              styles.iconContainer,
+              focused && styles.iconContainerActive
+            ]}>
+              <Ionicons 
+                name={iconName} 
+                size={21} 
+                color={focused ? colors.active : colors.inactive} 
+              />
             </View>
           );
         },
-        tabBarActiveTintColor: '#4ECDC4',
-        tabBarInactiveTintColor: '#6B7280',
-        tabBarStyle: {
-          backgroundColor: '#0a1f21',
-          borderTopWidth: 1,
-          borderTopColor: 'rgba(255, 255, 255, 0.1)',
-          paddingBottom: 8,
-          paddingTop: 8,
-          height: 80,
-        },
-        tabBarLabelStyle: {
-          fontSize: 12,
-          fontWeight: '500',
-          marginTop: 4,
-        },
       })}
     >
-      <Tab.Screen 
-        name="Dashboard" 
-        options={{ tabBarLabel: 'Início' }}
-      >
+      <Tab.Screen name="Dashboard">
         {props => <DashboardScreen {...props} onLogout={onLogout} />}
       </Tab.Screen>
-      
-      <Tab.Screen 
-        name="Portfolio" 
-        component={PortfolioScreen}
-        options={{ tabBarLabel: 'Portfólio' }}
-      />
-      
-      <Tab.Screen 
-        name="Investment" 
-        component={InvestmentScreen}
-        options={{ tabBarLabel: 'Investir' }}
-      />
-      
-      <Tab.Screen 
-        name="Transactions" 
-        component={TransactionsScreen}
-        options={{ tabBarLabel: 'Extrato' }}
-      />
-      
-      <Tab.Screen 
-        name="Profile"
-        options={{ tabBarLabel: 'Perfil' }}
-      >
+
+      <Tab.Screen name="Portfolio">
+        {props => <PortfolioScreen {...props} onLogout={onLogout} />}
+      </Tab.Screen>
+
+      <Tab.Screen name="Investir">
+        {props => <InvestmentScreen {...props} onLogout={onLogout} />}
+      </Tab.Screen>
+
+      <Tab.Screen name="Transacoes">
+        {props => <TransactionsScreen {...props} onLogout={onLogout} />}
+      </Tab.Screen>
+
+      <Tab.Screen name="Perfil">
         {props => <ProfileScreen {...props} onLogout={onLogout} />}
       </Tab.Screen>
     </Tab.Navigator>
@@ -97,22 +86,54 @@ const BottomTabNavigator = ({ onLogout }) => {
 };
 
 const styles = StyleSheet.create({
+  tabBar: {
+    position: 'absolute',
+    bottom: Platform.OS === 'ios' ? 40 : 30,
+    left: 20,
+    right: 20,
+    height: 52,
+    borderRadius: 12,
+    paddingBottom: 0,
+    paddingTop: 0,
+    paddingHorizontal: 12,
+    borderTopWidth: 0,
+    elevation: 25,
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 10,
+    },
+    shadowOpacity: 0.5,
+    shadowRadius: 20,
+  },
+  tabBarBackground: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    backgroundColor: colors.tabBarBackground,
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: colors.tabBarBorder,
+  },
+  tabBarItem: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingVertical: 4,
+    paddingHorizontal: 6,
+  },
   iconContainer: {
+    alignItems: 'center',
+    justifyContent: 'center',
     width: 40,
     height: 40,
-    borderRadius: 20,
-    justifyContent: 'center',
-    alignItems: 'center',
-    position: 'relative',
+    borderRadius: 10,
+    backgroundColor: 'transparent',
   },
-  iconContainerFocused: {
-    transform: [{ scale: 1.1 }],
-  },
-  iconBackground: {
-    position: 'absolute',
-    width: '100%',
-    height: '100%',
-    borderRadius: 20,
+  iconContainerActive: {
+    backgroundColor: colors.glow,
   },
 });
 
